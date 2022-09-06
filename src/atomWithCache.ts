@@ -31,7 +31,7 @@ export function atomWithCache<Value>(
       const writeGetter = get(writeGetterAtom)?.[0];
       if (writeGetter) {
         const index = cache.findIndex((item) =>
-          [...item[2]].every(([a, v]) => {
+          Array.from(item[2]).every(([a, v]) => {
             const vv = writeGetter(a, { unstable_promise: true });
             if (vv instanceof Promise) {
               return false;
