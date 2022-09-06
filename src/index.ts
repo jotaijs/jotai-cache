@@ -1,0 +1,1 @@
+export { atomWithCache } from './atomWithCache';
