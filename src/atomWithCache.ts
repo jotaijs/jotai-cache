@@ -40,11 +40,12 @@ export function atomWithCache<Value>(
           }),
         );
         if (index >= 0) {
-          if (options?.shouldRemove?.(...cache[index])) {
+          const item = cache[index] as typeof cache[number];
+          if (options?.shouldRemove?.(...item)) {
             cache.splice(index, 1);
           } else {
-            cache[index][2].forEach((_, a) => get(a)); // touch atoms
-            return cache[index][1] as Value;
+            item[2].forEach((_, a) => get(a)); // touch atoms
+            return item[1] as Value;
           }
         }
       }
