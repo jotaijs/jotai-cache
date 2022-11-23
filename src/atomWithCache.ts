@@ -1,11 +1,10 @@
-import { atom } from 'jotai';
-import type { Atom, Getter, WritableAtom } from 'jotai';
+import { atom } from 'jotai/vanilla';
+import type { Atom, Getter } from 'jotai/vanilla';
 
 type AnyAtomValue = unknown;
 type AnyAtom = Atom<AnyAtomValue>;
 type CreatedAt = number;
 
-type WriteGetter = Parameters<WritableAtom<unknown, unknown>['write']>[0];
 type Read<Value> = (get: Getter) => Value;
 
 type Options = {
@@ -25,14 +24,14 @@ export function atomWithCache<Value>(
   const is = options?.areEqual || Object.is;
   // this cache is common across Provider components
   const cache: [CreatedAt, AnyAtomValue, Map<AnyAtom, AnyAtomValue>][] = [];
-  const writeGetterAtom = atom<[WriteGetter] | null>(null);
+  const writeGetterAtom = atom<[Getter] | null>(null);
   const baseAtom = atom(
     (get) => {
       const writeGetter = get(writeGetterAtom)?.[0];
       if (writeGetter) {
         const index = cache.findIndex((item) =>
           Array.from(item[2]).every(([a, v]) => {
-            const vv = writeGetter(a, { unstable_promise: true });
+            const vv = writeGetter(a);
             if (vv instanceof Promise) {
               return false;
             }
