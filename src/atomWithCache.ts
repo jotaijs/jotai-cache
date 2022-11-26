@@ -5,7 +5,7 @@ type AnyAtomValue = unknown;
 type AnyAtom = Atom<AnyAtomValue>;
 type CreatedAt = number;
 
-type Read<Value> = (get: Getter) => Value;
+type Read<Value> = Atom<Value>['read'];
 
 type Options = {
   size?: number;
@@ -26,7 +26,7 @@ export function atomWithCache<Value>(
   const cache: [CreatedAt, AnyAtomValue, Map<AnyAtom, AnyAtomValue>][] = [];
   const writeGetterAtom = atom<[Getter] | null>(null);
   const baseAtom = atom(
-    (get) => {
+    (get, opts) => {
       const writeGetter = get(writeGetterAtom)?.[0];
       if (writeGetter) {
         const index = cache.findIndex((item) =>
@@ -53,7 +53,7 @@ export function atomWithCache<Value>(
         const v = get(a);
         map.set(a, v);
         return v;
-      });
+      }, opts);
       cache.unshift([Date.now(), value, map]);
       if (options?.size && options.size < cache.length) {
         cache.pop();
