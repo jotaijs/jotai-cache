@@ -39,7 +39,7 @@ export function atomWithCache<Value>(
           }),
         );
         if (index >= 0) {
-          const item = cache[index] as typeof cache[number];
+          const item = cache[index] as (typeof cache)[number];
           if (options?.shouldRemove?.(...item)) {
             cache.splice(index, 1);
           } else {
@@ -53,7 +53,7 @@ export function atomWithCache<Value>(
         const v = get(a);
         map.set(a, v);
         return v;
-      }, opts);
+      }, opts as typeof opts & { setSelf: never });
       cache.unshift([Date.now(), value, map]);
       if (options?.size && options.size < cache.length) {
         cache.pop();
