@@ -1,11 +1,11 @@
 {
   "name": "jotai-cache",
   "description": "👻🗃 ",
-  "version": "0.1.1",
+  "version": "0.2.0",
   "author": "Daishi Kato",
   "repository": {
     "type": "git",
-    "url": "https://github.com/jotai-labs/jotai-cache.git"
+    "url": "https://github.com/jotaijs/jotai-cache.git"
   },
   "source": "./src/index.ts",
   "main": "./dist/index.umd.js",
