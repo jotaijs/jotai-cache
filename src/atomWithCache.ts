@@ -25,6 +25,8 @@ export function atomWithCache<Value>(
   // this cache is common across Provider components
   const cache: [CreatedAt, AnyAtomValue, Map<AnyAtom, AnyAtomValue>][] = [];
   const writeGetterAtom = atom<[Getter] | null>(null);
+  writeGetterAtom.debugPrivate = true;
+
   const baseAtom = atom(
     (get, opts) => {
       const writeGetter = get(writeGetterAtom)?.[0];
@@ -68,6 +70,9 @@ export function atomWithCache<Value>(
       }
     },
   );
+
+  baseAtom.debugPrivate = true;
+
   baseAtom.onMount = (init) => {
     init(true);
     return () => init(false);
