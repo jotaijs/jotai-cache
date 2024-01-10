@@ -1,5 +1,5 @@
 import { atom } from 'jotai/vanilla';
-import type { Atom, Getter, WritableAtom } from 'jotai/vanilla';
+import type { Atom, WritableAtom } from 'jotai/vanilla';
 
 type AnyAtomValue = unknown;
 type AnyAtom = Atom<AnyAtomValue>;
