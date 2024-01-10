@@ -24,10 +24,6 @@ export function atomWithCache<Value>(
   const is = options?.areEqual || Object.is;
   // this cache is common across Provider components
   const cache: [CreatedAt, AnyAtomValue, Map<AnyAtom, AnyAtomValue>][] = [];
-  const writeGetterAtom = atom<[Getter] | null>(null);
-  if (process.env.NODE_ENV !== 'production') {
-    writeGetterAtom.debugPrivate = true;
-  }
 
   const baseAtom: WritableAtom<Value, [AnyAtom], AnyAtomValue> = atom(
     (get, { setSelf: writeGetter, ...opts }) => {
