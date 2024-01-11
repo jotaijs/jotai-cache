@@ -20,21 +20,19 @@ type Options = {
 export function atomWithCache<Value>(
   read: Read<Value>,
   options?: Options,
-): Atom<Value> {
+): Atom<Promise<Awaited<Value>>> {
   const is = options?.areEqual || Object.is;
   // this cache is common across Provider components
-  const cache: [CreatedAt, AnyAtomValue, Map<AnyAtom, AnyAtomValue>][] = [];
+  const cache: [CreatedAt, Awaited<Value>, Map<AnyAtom, AnyAtomValue>][] = [];
 
-  const baseAtom: WritableAtom<Value, [AnyAtom], AnyAtomValue> = atom(
-    (get, { setSelf: writeGetter, ...opts }) => {
+  const baseAtom: WritableAtom<
+    Promise<Awaited<Value>>,
+    [AnyAtom],
+    AnyAtomValue
+  > = atom(
+    async (get, { setSelf: writeGetter, ...opts }): Promise<Awaited<Value>> => {
       const index = cache.findIndex((item) =>
-        Array.from(item[2]).every(([a, v]) => {
-          const vv = writeGetter(a);
-          if (vv instanceof Promise) {
-            return false;
-          }
-          return is(v, vv);
-        }),
+        Array.from(item[2]).every(([a, v]) => is(v, writeGetter(a))),
       );
       if (index >= 0) {
         const item = cache[index] as (typeof cache)[number];
@@ -42,11 +40,11 @@ export function atomWithCache<Value>(
           cache.splice(index, 1);
         } else {
           item[2].forEach((_, a) => get(a)); // touch atoms
-          return item[1] as Value;
+          return item[1] as Awaited<Value>;
         }
       }
       const map = new Map<AnyAtom, AnyAtomValue>();
-      const value = read(
+      const value = await read(
         (a) => {
           const v = get(a);
           map.set(a, v);
