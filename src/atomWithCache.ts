@@ -46,11 +46,14 @@ export function atomWithCache<Value>(
         }
       }
       const map = new Map<AnyAtom, AnyAtomValue>();
-      const value = read((a) => {
-        const v = get(a);
-        map.set(a, v);
-        return v;
-      }, opts as typeof opts & { setSelf: never });
+      const value = read(
+        (a) => {
+          const v = get(a);
+          map.set(a, v);
+          return v;
+        },
+        opts as typeof opts & { setSelf: never },
+      );
       cache.unshift([Date.now(), value, map]);
       if (options?.size && options.size < cache.length) {
         cache.pop();
