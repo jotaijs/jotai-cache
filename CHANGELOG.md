@@ -1,6 +1,8 @@
 # Change Log
 
 ## [Unreleased]
+### Added
+- fix behavior with strict mode #7
 
 ## [0.3.0] - 2023-03-03
 ### Added

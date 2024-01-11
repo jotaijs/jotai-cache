@@ -1,5 +1,5 @@
 import { atom } from 'jotai/vanilla';
-import type { Atom, Getter } from 'jotai/vanilla';
+import type { Atom, WritableAtom } from 'jotai/vanilla';
 
 type AnyAtomValue = unknown;
 type AnyAtom = Atom<AnyAtomValue>;
@@ -24,32 +24,25 @@ export function atomWithCache<Value>(
   const is = options?.areEqual || Object.is;
   // this cache is common across Provider components
   const cache: [CreatedAt, AnyAtomValue, Map<AnyAtom, AnyAtomValue>][] = [];
-  const writeGetterAtom = atom<[Getter] | null>(null);
-  if (process.env.NODE_ENV !== 'production') {
-    writeGetterAtom.debugPrivate = true;
-  }
 
-  const baseAtom = atom(
-    (get, opts) => {
-      const writeGetter = get(writeGetterAtom)?.[0];
-      if (writeGetter) {
-        const index = cache.findIndex((item) =>
-          Array.from(item[2]).every(([a, v]) => {
-            const vv = writeGetter(a);
-            if (vv instanceof Promise) {
-              return false;
-            }
-            return is(v, vv);
-          }),
-        );
-        if (index >= 0) {
-          const item = cache[index] as (typeof cache)[number];
-          if (options?.shouldRemove?.(...item)) {
-            cache.splice(index, 1);
-          } else {
-            item[2].forEach((_, a) => get(a)); // touch atoms
-            return item[1] as Value;
+  const baseAtom: WritableAtom<Value, [AnyAtom], AnyAtomValue> = atom(
+    (get, { setSelf: writeGetter, ...opts }) => {
+      const index = cache.findIndex((item) =>
+        Array.from(item[2]).every(([a, v]) => {
+          const vv = writeGetter(a);
+          if (vv instanceof Promise) {
+            return false;
           }
+          return is(v, vv);
+        }),
+      );
+      if (index >= 0) {
+        const item = cache[index] as (typeof cache)[number];
+        if (options?.shouldRemove?.(...item)) {
+          cache.splice(index, 1);
+        } else {
+          item[2].forEach((_, a) => get(a)); // touch atoms
+          return item[1] as Value;
         }
       }
       const map = new Map<AnyAtom, AnyAtomValue>();
@@ -64,23 +57,13 @@ export function atomWithCache<Value>(
       }
       return value;
     },
-    (get, set, isInit) => {
-      if (isInit) {
-        set(writeGetterAtom, [get]);
-      } else {
-        set(writeGetterAtom, null);
-      }
-    },
+    (get, _set, anAtom: AnyAtom) => get(anAtom), // HACK HACK HACK
   );
 
   if (process.env.NODE_ENV !== 'production') {
     baseAtom.debugPrivate = true;
   }
 
-  baseAtom.onMount = (init) => {
-    init(true);
-    return () => init(false);
-  };
   const derivedAtom = atom((get) => get(baseAtom));
   return derivedAtom;
 }
