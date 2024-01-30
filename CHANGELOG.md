@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.4.1] - 2024-01-30
+### Changed
+- fix: always async #10
+
 ## [0.4.0] - 2024-01-11
 ### Added
 - fix behavior with strict mode #7
