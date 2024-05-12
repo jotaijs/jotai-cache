@@ -31,6 +31,7 @@ export function atomWithCache<Value>(
     AnyAtomValue
   > = atom(
     async (get, { setSelf: writeGetter, ...opts }): Promise<Awaited<Value>> => {
+      await Promise.resolve();
       const index = cache.findIndex((item) =>
         Array.from(item[2]).every(([a, v]) => is(v, writeGetter(a))),
       );
