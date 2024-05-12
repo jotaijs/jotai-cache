@@ -5,6 +5,7 @@
 ### Changed
 
 - Module-first setup #11
+- fix: with latest jotai #12
 
 ## [0.4.1] - 2024-01-30
 
