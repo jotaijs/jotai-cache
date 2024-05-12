@@ -1,1 +1,1 @@
-export { atomWithCache } from './atomWithCache';
+export { atomWithCache } from './atomWithCache.js';
