@@ -6,8 +6,7 @@
   "dependencies": {
     "jotai-cache": "latest",
     "react": "latest",
-    "react-dom": "latest",
-    "valtio": "latest"
+    "react-dom": "latest"
   },
   "devDependencies": {
     "@types/react": "latest",
