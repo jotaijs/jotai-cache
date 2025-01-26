@@ -12,7 +12,7 @@
     "jsx": "react-jsx",
     "baseUrl": ".",
     "paths": {
-      "jotai-cache": ["./src/index.js"]
+      "jotai-cache": ["./src/index.ts"]
     }
   },
   "exclude": ["dist", "examples"]
