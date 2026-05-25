@@ -17,13 +17,20 @@ type Options = {
   areEqual?: <V>(a: V, b: V) => boolean;
 };
 
+type CacheAction = { type: 'refresh' };
+
 export function atomWithCache<Value>(
   read: Read<Value>,
   options?: Options,
-): Atom<Promise<Awaited<Value>>> {
+): WritableAtom<Promise<Awaited<Value>>, [CacheAction], void> {
   const is = options?.areEqual || Object.is;
   // this cache is common across Provider components
   const cache: [CreatedAt, Awaited<Value>, Map<AnyAtom, AnyAtomValue>][] = [];
+
+  const refreshAtom = atom(0);
+  if (process.env.NODE_ENV !== 'production') {
+    refreshAtom.debugPrivate = true;
+  }
 
   const baseAtom: WritableAtom<
     Promise<Awaited<Value>>,
@@ -31,6 +38,7 @@ export function atomWithCache<Value>(
     AnyAtomValue
   > = atom(
     async (get, { setSelf: writeGetter, ...opts }): Promise<Awaited<Value>> => {
+      get(refreshAtom);
       await Promise.resolve();
       const index = cache.findIndex((item) =>
         Array.from(item[2]).every(([a, v]) => is(v, writeGetter(a))),
@@ -66,6 +74,13 @@ export function atomWithCache<Value>(
     baseAtom.debugPrivate = true;
   }
 
-  const derivedAtom = atom((get) => get(baseAtom));
-  return derivedAtom;
+  return atom(
+    (get) => get(baseAtom),
+    (_get, set, action: CacheAction) => {
+      if (action.type === 'refresh') {
+        cache.length = 0;
+        set(refreshAtom, (c) => c + 1);
+      }
+    },
+  );
 }

@@ -1,17 +1,12 @@
 import { expect, test } from 'vitest';
 import { createStore, atom } from 'jotai/vanilla';
-import { atomWithCache, atomWithCacheAndRefresh } from 'jotai-cache';
+import { atomWithCache } from 'jotai-cache';
 
-test('should export atomWithCacheAndRefresh', () => {
-  expect(atomWithCacheAndRefresh).toBeDefined();
-  expect(atomWithCache).toBeDefined();
-});
-
-test('atomWithCacheAndRefresh caches by default and invalidates on set', async () => {
+test('atomWithCache caches by default and invalidates on refresh action', async () => {
   const store = createStore();
   const depAtom = atom(1);
   let calls = 0;
-  const cached = atomWithCacheAndRefresh(async (get) => {
+  const cached = atomWithCache(async (get) => {
     calls += 1;
     return get(depAtom);
   });
@@ -20,17 +15,17 @@ test('atomWithCacheAndRefresh caches by default and invalidates on set', async (
   expect(await store.get(cached)).toBe(1);
   expect(calls).toBe(1);
 
-  store.set(cached);
+  store.set(cached, { type: 'refresh' });
 
   expect(await store.get(cached)).toBe(1);
   expect(calls).toBe(2);
 });
 
-test('atomWithCacheAndRefresh re-reads after dep changes (same as atomWithCache)', async () => {
+test('atomWithCache re-reads after dep changes', async () => {
   const store = createStore();
   const depAtom = atom(1);
   let calls = 0;
-  const cached = atomWithCacheAndRefresh(async (get) => {
+  const cached = atomWithCache(async (get) => {
     calls += 1;
     return get(depAtom);
   });
