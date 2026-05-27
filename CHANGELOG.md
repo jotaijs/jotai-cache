@@ -1,6 +1,6 @@
 # Change Log
 
-## [Unreleased]
+See https://github.com/jotaijs/jotai-cache/releases
 
 ## [0.5.0] - 2024-05-12
 
